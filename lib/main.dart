@@ -8,9 +8,33 @@ import '/models/transactions.dart';
 main() => runApp(Expenses());
 
 class Expenses extends StatelessWidget {
+  final ThemeData tema = ThemeData();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: MyHomePage());
+    return MaterialApp(
+      home: MyHomePage(),
+      theme: tema.copyWith(
+        colorScheme: tema.colorScheme.copyWith(
+          primary: Colors.purple,
+          secondary: Colors.amber,
+        ),
+        textTheme: tema.textTheme.copyWith(
+          headline6: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          titleTextStyle: TextStyle(
+            fontFamily: 'OpenSans',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -20,11 +44,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _Trasactions = [
-    Transactions(
-        id: 'D1', titulo: 'carro', value: 70.000, date: DateTime.now()),
-    Transactions(
-        id: 'D2', titulo: 'casa', value: 150.000, date: DateTime.now()),
+  final List<Transactions> _Trasactions = [
+    // Transactions(
+    //     id: 'D1', titulo: 'carro', value: 70.000, date: DateTime.now()),
+    // Transactions(
+    //     id: 'D2', titulo: 'casa', value: 150.000, date: DateTime.now()),
   ];
 
   _addTransaction(String title, double value) {
