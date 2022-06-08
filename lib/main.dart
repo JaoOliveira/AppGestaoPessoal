@@ -1,9 +1,12 @@
-import 'package:expenses/components/trasactionsForm.dart';
 import 'package:flutter/material.dart';
+import 'package:expenses/components/chart.dart';
+import 'package:expenses/components/trasactionsForm.dart';
 import 'dart:math';
 import '/components/trasactionsForm.dart';
 import '/components/transactionList.dart';
 import '/models/transactions.dart';
+import 'components/chart.dart';
+import './components/chartBar.dart';
 
 main() => runApp(Expenses());
 
@@ -44,24 +47,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transactions> _Trasactions = [
-    // Transactions(
-    //     id: 'D1', titulo: 'carro', value: 70.000, date: DateTime.now()),
-    // Transactions(
-    //     id: 'D2', titulo: 'casa', value: 150.000, date: DateTime.now()),
-  ];
+  final List<Transactions> _Trasactions = [];
+  List<Transactions> get _recentTransaction {
+    return _Trasactions.where((tr) {
+      return tr.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
+    }).toList();
+  }
 
-  _addTransaction(String title, double value) {
+  _addTransaction(String title, double value, DateTime date) {
     final newTransaction = Transactions(
         id: Random().nextDouble().toString(),
         titulo: title,
         value: value,
-        date: DateTime.now());
+        date: date);
     setState(() {
       _Trasactions.add(newTransaction);
     });
 
     Navigator.of(context).pop();
+  }
+
+  _removeTransaction(String id) {
+    setState(() {
+      _Trasactions.removeWhere((tr) => tr.id == id);
+    });
   }
 
   _openTransactionFormModal(BuildContext context) {
@@ -75,35 +88,26 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Despesas Pessoais'),
+        title: const Text('Despesas Pessoais'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add),
             onPressed: () => _openTransactionFormModal(context),
-            icon: Icon(Icons.add),
-          )
+          ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              child: Card(
-                color: Colors.blue,
-                child: Text('GRAFICO'),
-                elevation: 5,
-              ),
-            ),
-            transactionList(_Trasactions),
-          ],
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Chart(_recentTransaction),
+          transactionList(_Trasactions, _removeTransaction),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () => _openTransactionFormModal(context),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

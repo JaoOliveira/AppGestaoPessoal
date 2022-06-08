@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class transactionForm extends StatefulWidget {
-  final void Function(String, double) onSubmit;
+  final void Function(String, double, DateTime) onSubmit;
   transactionForm(this.onSubmit);
 
   @override
@@ -9,17 +10,33 @@ class transactionForm extends StatefulWidget {
 }
 
 class _transactionFormState extends State<transactionForm> {
-  final textController = TextEditingController();
-
-  final valueController = TextEditingController();
+  final _textController = TextEditingController();
+  final _valueController = TextEditingController();
+  DateTime? _SelectedDate = DateTime.now();
 
   _Submit() {
-    final title = textController.text;
-    final value = double.tryParse(valueController.text) ?? 0.0;
-    if (title.isEmpty || value <= 0) {
+    final title = _textController.text;
+    final value = double.tryParse(_valueController.text) ?? 0.0;
+    if (title.isEmpty || value <= 0 || _SelectedDate == '') {
       return;
     }
-    widget.onSubmit(title, value);
+    widget.onSubmit(title, value, _SelectedDate!);
+  }
+
+  _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == 0) {
+        return;
+      }
+      setState(() {
+        _SelectedDate = pickedDate;
+      });
+    });
   }
 
   @override
@@ -31,24 +48,42 @@ class _transactionFormState extends State<transactionForm> {
         child: Column(
           children: [
             TextField(
-              controller: textController,
+              controller: _textController,
               decoration: InputDecoration(labelText: 'Titulo'),
               onSubmitted: (_) => _Submit(),
             ),
             TextField(
               keyboardType: TextInputType.numberWithOptions(decimal: true),
-              controller: valueController,
+              controller: _valueController,
               decoration: InputDecoration(labelText: 'Valor R\$'),
               onSubmitted: (_) => _Submit(),
+            ),
+            Container(
+              height: 70,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _SelectedDate == 0
+                          ? 'Nenhuma data selecionada'
+                          : DateFormat('d/MM/y').format(_SelectedDate!),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _showDatePicker,
+                    child: Text('Selecionar data'),
+                  ),
+                ],
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    final title = textController.text;
-                    final value = double.tryParse(valueController.text) ?? 0.0;
-                    widget.onSubmit(title, value);
+                    final title = _textController.text;
+                    final value = double.tryParse(_valueController.text) ?? 0.0;
+                    widget.onSubmit(title, value, _SelectedDate!);
                   },
                   child: Text('Nova transação'),
                   style: ButtonStyle(
